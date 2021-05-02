@@ -21,7 +21,7 @@ import os
 
 url = "http://127.0.0.1:8083"
 interpreter = "python3"
-reservation_script = os.path.join("python", "reserve.py")
+reservation_script = os.path.join("ticket_office", "reserve.py")
 
 class TrainReservationTest(unittest.TestCase):
 
