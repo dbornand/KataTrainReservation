@@ -1,8 +1,29 @@
+import requests
+
+
 class TicketOffice:
 
     def reserve(self, train_id, seat_count):
-        # TODO: write this code!
-        pass
+        selected_seats = self.select_seats(train_id, seat_count)
+        if selected_seats:
+            booking_reference = self.get_booking_reference()
+        else:
+            booking_reference = ""
+        reservation = {
+            "train_id": train_id,
+            "booking_reference": booking_reference
+        }
+        return reservation
+
+    def get_booking_reference(self):
+        url = "http://127.0.0.1:8082" + "/booking_reference"
+        response = requests.get(url)
+        booking_reference = response.text
+        return booking_reference
+
+    def select_seats(self, train_id, seat_count):
+        # TODO Implement
+        raise NotImplementedError
 
 
 if __name__ == "__main__":

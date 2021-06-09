@@ -1,5 +1,42 @@
-def test_reserve():
-    assert False
+from unittest.mock import patch
+
+import pytest
+
+from ticket_office import TicketOffice
+
+
+@pytest.fixture(autouse=True)
+def mock_select_seats():
+    with patch.object(TicketOffice, 'select_seats') as mock_select_seats:
+        yield mock_select_seats
+
+
+@pytest.fixture(autouse=True)
+def mock_get_booking_reference():
+    with patch.object(TicketOffice, 'get_booking_reference') as mock_get_booking_reference:
+        yield mock_get_booking_reference
+
+
+def test_assert_train_id_is_returned_in_reservation():
+    ticket_office = TicketOffice()
+    reservation = ticket_office.reserve('foo_train', 1)
+    assert reservation["train_id"] == 'foo_train'
+
+
+def test_booking_reference_is_empty_if_no_suitable_seats_are_found(mock_select_seats, mock_get_booking_reference):
+    mock_get_booking_reference.return_value = 'a1b2c3'
+    mock_select_seats.return_value = []
+    ticket_office = TicketOffice()
+    reservation = ticket_office.reserve('foo_train', 1)
+    assert reservation["booking_reference"] == ''
+
+
+def test_booking_reference_is_returned_if_suitable_seats_are_found(mock_select_seats, mock_get_booking_reference):
+    mock_get_booking_reference.return_value = "a1b2c3"
+    mock_select_seats.return_value = ["1A"]
+    ticket_office = TicketOffice()
+    reservation = ticket_office.reserve('foo_train', 1)
+    assert reservation["booking_reference"] == "a1b2c3"
 
 # SINGLE COACH, NO RESERVATION
 # one seat
