@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 
@@ -7,13 +9,21 @@ class TicketOffice:
         selected_seats = self.select_seats(train_id, seat_count)
         if selected_seats:
             booking_reference = self.get_booking_reference()
+            self.trigger_reservation(booking_reference, selected_seats, train_id)
         else:
             booking_reference = ""
         reservation = {
             "train_id": train_id,
-            "booking_reference": booking_reference
+            "booking_reference": booking_reference,
+            "seats": selected_seats
         }
         return reservation
+
+    def trigger_reservation(self, booking_reference, selected_seats, train_id):
+        url = "http://127.0.0.1:8081/reserve"
+        requests.get("http://127.0.0.1:8081/reset/express_2000")
+        data = {"train_id": train_id, "booking_reference": booking_reference, 'seats': json.dumps(selected_seats)}
+        requests.post(url, data=data)
 
     def get_booking_reference(self):
         url = "http://127.0.0.1:8082" + "/booking_reference"

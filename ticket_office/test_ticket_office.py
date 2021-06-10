@@ -17,6 +17,12 @@ def mock_get_booking_reference():
         yield mock_get_booking_reference
 
 
+@pytest.fixture(autouse=True)
+def mock_trigger_reservation():
+    with patch.object(TicketOffice, 'trigger_reservation') as mock_trigger_reservation:
+        yield mock_trigger_reservation
+
+
 def test_assert_train_id_is_returned_in_reservation():
     ticket_office = TicketOffice()
     reservation = ticket_office.reserve('foo_train', 1)
@@ -37,6 +43,27 @@ def test_booking_reference_is_returned_if_suitable_seats_are_found(mock_select_s
     ticket_office = TicketOffice()
     reservation = ticket_office.reserve('foo_train', 1)
     assert reservation["booking_reference"] == "a1b2c3"
+
+
+def test_selected_seats_are_returned_in_reservation(mock_select_seats):
+    mock_select_seats.return_value = ["1A", "2A"]
+    ticket_office = TicketOffice()
+    reservation = ticket_office.reserve('foo_train', 2)
+    assert reservation["seats"] == ["1A", "2A"]
+
+
+def test_reservation_is_triggered_if_suitable_seats_are_found(mock_select_seats, mock_trigger_reservation):
+    mock_select_seats.return_value = ["1A", "2A"]
+    ticket_office = TicketOffice()
+    ticket_office.reserve('foo_train', 2)
+    mock_trigger_reservation.assert_called_once()
+
+
+def test_reservation_is_not_triggered_if_no_suitable_seats_are_found(mock_select_seats, mock_trigger_reservation):
+    mock_select_seats.return_value = []
+    ticket_office = TicketOffice()
+    ticket_office.reserve('foo_train', 1)
+    mock_trigger_reservation.assert_not_called()
 
 # SINGLE COACH, NO RESERVATION
 # one seat
