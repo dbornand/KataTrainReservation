@@ -2,11 +2,13 @@ import json
 
 import requests
 
+from seats_selector import select_seats
+
 
 class TicketOffice:
 
     def reserve(self, train_id, seat_count):
-        selected_seats = self.select_seats(train_id, seat_count)
+        selected_seats = select_seats(train_id, seat_count)
         if selected_seats:
             booking_reference = self.get_booking_reference()
             self.trigger_reservation(booking_reference, selected_seats, train_id)
@@ -30,10 +32,6 @@ class TicketOffice:
         response = requests.get(url)
         booking_reference = response.text
         return booking_reference
-
-    def select_seats(self, train_id, seat_count):
-        # TODO Implement
-        raise NotImplementedError
 
 
 if __name__ == "__main__":

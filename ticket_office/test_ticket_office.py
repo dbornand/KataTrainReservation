@@ -7,7 +7,7 @@ from ticket_office import TicketOffice
 
 @pytest.fixture(autouse=True)
 def mock_select_seats():
-    with patch.object(TicketOffice, 'select_seats') as mock_select_seats:
+    with patch('ticket_office.select_seats') as mock_select_seats:
         yield mock_select_seats
 
 
