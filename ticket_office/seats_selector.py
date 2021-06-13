@@ -1,3 +1,6 @@
+import requests
+
+
 class Seat:
 
     def __init__(self, seat_id, booking_reference=""):
@@ -68,5 +71,23 @@ def _select_coach_seats(coach, seat_count, max_capacity=1.0):
 
 
 def get_train(train_id):
-    # TODO Implement
-    raise NotImplementedError
+    url = "http://127.0.0.1:8081/data_for_train/" + train_id
+    response = requests.get(url)
+    train_data = response.json()
+    train_seats = train_data["seats"]
+
+    coaches_seats = dict()
+    for seat_id, seat_data in train_seats.items():
+        booking_reference = seat_data["booking_reference"]
+        seat = Seat(seat_id, booking_reference)
+        coach_id = seat_data["coach"]
+        coach_seats = coaches_seats.get(coach_id, [])
+        coach_seats.append(seat)
+        coaches_seats[coach_id] = coach_seats
+
+    coaches = []
+    for coach_id, coach_seats in coaches_seats.items():
+        coach = Coach(coach_id, coach_seats)
+        coaches.append(coach)
+
+    return Train(train_id, coaches)
